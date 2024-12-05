@@ -1,0 +1,16 @@
+{
+  "name": "dashboard-api",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "API для учебного проекта nodeJs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Andrey Verbitskiy",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.1"
+  }
+}

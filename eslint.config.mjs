@@ -38,7 +38,7 @@ export default tseslint.config(
         ],
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/explicit-function-return-type": [
-            "off"
+            "warn"
         ],
         "prettier/prettier": [
             "error",

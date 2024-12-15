@@ -6,11 +6,10 @@ import { inject, injectable } from 'inversify';
 import { TYPES } from '../type';
 import 'reflect-metadata';
 import { IUserController } from './user.controller.interface';
-import fs from 'fs';
-import { resolve } from 'path';
 import { UserLoginDto } from './dto/user-login.dto';
-import { User } from './user.entity';
 import { IUserService } from './user.service.interface';
+import { ValidateMiddleware } from '../common/validate.middleware';
+import { UserRegisterDto } from './dto/user-register.dto';
 
 @injectable()
 export class UserController extends BaseController implements IUserController {
@@ -20,18 +19,36 @@ export class UserController extends BaseController implements IUserController {
 	) {
 		super(loggerService);
 		this.bindRoutes([
-			{ path: '/login', method: 'post', func: this.login },
-			{ path: '/register', method: 'post', func: this.register },
+			{
+				path: '/login',
+				method: 'post',
+				func: this.login,
+				middleware: [new ValidateMiddleware(UserLoginDto)],
+			},
+			{
+				path: '/register',
+				method: 'post',
+				func: this.register,
+				middleware: [new ValidateMiddleware(UserRegisterDto)],
+			},
 		]);
 	}
 
-	login(req: Request<{}, {}, UserLoginDto>, res: Response, next: NextFunction): void {
-		console.log(req.body);
-		next(new HTTPError(401, 'ошибка авторизации', 'login'));
+	async login(
+		{ body }: Request<{}, {}, UserLoginDto>,
+		res: Response,
+		next: NextFunction,
+	): Promise<void> {
+		console.log(body);
+		const result = await this.userService.validateUser(body);
+		if (!result) {
+			return next(new HTTPError(401, 'ошибка авторизации', 'login'));
+		}
+		this.ok(res, 'Authorized');
 	}
 
 	async register(
-		{ body }: Request<{}, {}, UserLoginDto>,
+		{ body }: Request<{}, {}, UserRegisterDto>,
 		res: Response,
 		next: NextFunction,
 	): Promise<void> {
@@ -40,6 +57,6 @@ export class UserController extends BaseController implements IUserController {
 		if (!result) {
 			return next(new HTTPError(422, 'user exist'));
 		}
-		this.ok(res, { email: result.email });
+		this.ok(res, { email: result.email, id: result.id });
 	}
 }

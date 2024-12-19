@@ -7,7 +7,6 @@ import { IConfigService } from '../config/config.service.interface';
 import { TYPES } from '../type';
 import { IUserRepository } from './user.repository.interface';
 import { UserModel } from '@prisma/client';
-import { compare } from 'bcryptjs';
 
 @injectable()
 export class UserService implements IUserService {
@@ -30,5 +29,9 @@ export class UserService implements IUserService {
 		if (!existedUser) return false;
 		const newUser = new User(existedUser.email, existedUser.name, existedUser.password);
 		return newUser.comparePasswords(password);
+	}
+
+	async getUserInfo(email: string): Promise<UserModel | null> {
+		return await this.userRepository.find(email);
 	}
 }
